@@ -28,11 +28,11 @@ Esta API foi desenvolvida para gerenciar enquetes de forma eficiente e escaláve
 
 ## **Tecnologias Utilizadas**
 
-- <a href="https://www.fastify.io/" target="_blank" rel="noopener noreferrer">**Fastify**</a>: Framework web rápido e eficiente.
-- <a href="https://www.prisma.io/" target="_blank" rel="noopener noreferrer">**Prisma**</a>: ORM para interagir com o banco de dados PostgreSQL.
-- <a href="https://redis.io/" target="_blank" rel="noopener noreferrer">**Redis**</a>: Utilizado para gerenciar contagens de votos e publicar atualizações em tempo real.
-- <a href="https://developer.mozilla.org/pt-BR/docs/Web/API/WebSockets_API" target="_blank" rel="noopener noreferrer">**WebSockets**</a>: Para comunicação em tempo real.
-- <a href="https://www.typescriptlang.org/" target="_blank" rel="noopener noreferrer">**TypeScript**</a>: Para tipagem estática e maior segurança no desenvolvimento.
+- [**Fastify**](https://www.fastify.io/): Framework web rápido e eficiente.
+- [**Prisma**](https://www.prisma.io/): ORM para interagir com o banco de dados PostgreSQL.
+- [**Redis**](https://redis.io/): Utilizado para gerenciar contagens de votos e publicar atualizações em tempo real.
+- [**WebSockets**](https://developer.mozilla.org/pt-BR/docs/Web/API/WebSockets_API): Para comunicação em tempo real.
+- [**TypeScript**](https://www.typescriptlang.org/): Para tipagem estática e maior segurança no desenvolvimento.
 
 ---
 
@@ -122,4 +122,4 @@ Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou enviar
 
 ## **Licença**
 
-Este projeto está licenciado sob a licença <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener noreferrer">MIT</a>. Consulte o arquivo `LICENSE` para mais informações.
+Este projeto está licenciado sob a licença [MIT](https://opensource.org/licenses/MIT). Consulte o arquivo `LICENSE` para mais informações.
