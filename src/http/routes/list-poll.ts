@@ -33,7 +33,7 @@ const listPolls = async (app: FastifyInstance) => {
     return res.send({
       data: polls.map((poll) => ({
         id: poll.id,
-        nome: poll.title,
+        title: poll.title,
         createdAt: poll.createdAt,
       })),
       meta: {
