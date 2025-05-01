@@ -22,16 +22,38 @@ Esta API foi desenvolvida para gerenciar enquetes de forma eficiente e escaláve
 
 4. **Listagem de Enquetes**:
    - Endpoint: `GET /polls`
-   - Retorna uma lista de enquetes no formato:
+   - Retorna uma lista de enquetes com suporte a paginação e filtro por nome.
+   - **Parâmetros de Query**:
+     - `page` (opcional): Número da página (padrão: `1`).
+     - `limit` (opcional): Quantidade de enquetes por página (padrão: `10`, máximo: `100`).
+     - `search` (opcional): Filtro para buscar enquetes pelo título (case-insensitive).
+   - **Resposta**:
+     <details>
+     <summary>Exemplo de Resposta</summary>
+
      ```json
-     [
-       {
-         "id": "ID da Enquete",
-         "nome": "Título da Enquete",
-         "totalDeVotos": 42
+     {
+       "data": [
+         {
+           "id": "123e4567-e89b-12d3-a456-426614174000",
+           "nome": "Qual é a sua linguagem favorita?",
+           "createdAt": "2023-10-01T12:00:00.000Z"
+         },
+         {
+           "id": "123e4567-e89b-12d3-a456-426614174001",
+           "nome": "Qual é o melhor framework?",
+           "createdAt": "2023-10-02T15:30:00.000Z"
+         }
+       ],
+       "meta": {
+         "total": 15,
+         "page": 1,
+         "limit": 10,
+         "totalPages": 2
        }
-     ]
+     }
      ```
+     </details>
 
 5. **Resultados em Tempo Real**:
    - Endpoint WebSocket: `/polls/:pollId/results`
@@ -109,6 +131,17 @@ Esta API foi desenvolvida para gerenciar enquetes de forma eficiente e escaláve
     "options": ["Opção 1", "Opção 2"]
   }
   ```
+<details>
+<summary>Exemplo de Resposta</summary>
+
+```json
+{
+  "pollId": "123e4567-e89b-12d3-a456-426614174000"
+}
+```
+</details>
+
+---
 
 ### **2. Votar em uma Opção**
 - **URL**: `POST /polls/:pollId/votes`
@@ -118,25 +151,89 @@ Esta API foi desenvolvida para gerenciar enquetes de forma eficiente e escaláve
     "pollOptionId": "ID da Opção"
   }
   ```
+<details>
+<summary>Exemplo de Resposta</summary>
+
+```json
+{
+  "status": 201
+}
+```
+</details>
+
+---
 
 ### **3. Obter Detalhes da Enquete**
 - **URL**: `GET /polls/:pollId`
+<details>
+<summary>Exemplo de Resposta</summary>
+
+```json
+{
+  "poll": {
+    "id": "123e4567-e89b-12d3-a456-426614174000",
+    "title": "Qual é a sua linguagem favorita?",
+    "options": [
+      {
+        "id": "1",
+        "title": "JavaScript",
+        "score": 10
+      },
+      {
+        "id": "2",
+        "title": "Python",
+        "score": 5
+      }
+    ]
+  }
+}
+```
+</details>
+
+---
 
 ### **4. Listar Enquetes**
 - **URL**: `GET /polls`
-- **Resposta**:
-  ```json
-  [
+- **Parâmetros de Query**:
+  - `page` (opcional): Número da página (padrão: `1`).
+  - `limit` (opcional): Quantidade de enquetes por página (padrão: `10`, máximo: `100`).
+  - `search` (opcional): Filtro para buscar enquetes pelo título (case-insensitive).
+<details>
+<summary>Exemplo de Resposta</summary>
+
+```json
+{
+  "data": [
     {
-      "id": "ID da Enquete",
-      "nome": "Título da Enquete",
-      "totalDeVotos": 42
+      "id": "123e4567-e89b-12d3-a456-426614174000",
+      "nome": "Qual é a sua linguagem favorita?",
+      "createdAt": "2023-10-01T12:00:00.000Z"
     }
-  ]
-  ```
+  ],
+  "meta": {
+    "total": 15,
+    "page": 1,
+    "limit": 10,
+    "totalPages": 2
+  }
+}
+```
+</details>
+
+---
 
 ### **5. Resultados em Tempo Real**
 - **URL**: WebSocket `/polls/:pollId/results`
+<details>
+<summary>Exemplo de Mensagem</summary>
+
+```json
+{
+  "pollOptionId": "123e4567-e89b-12d3-a456-426614174001",
+  "votes": 42
+}
+```
+</details>
 
 ---
 

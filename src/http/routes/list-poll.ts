@@ -1,36 +1,48 @@
 import { FastifyInstance } from "fastify";
 import { prisma } from "../../lib/prisma";
-import { redis } from "../../lib/redis";
+import z from "zod";
+import { Prisma } from "@prisma/client";
 
 const listPolls = async (app: FastifyInstance) => {
-  app.get('/polls', async (_req, res) => {
-    const polls = await prisma.poll.findMany({
-      include: {
-        options: {
-          select: {
-            id: true,
-          },
-        },
-      },
+  app.get('/polls', async (req, res) => {
+    const querySchema = z.object({
+      page: z.number().int().min(1).default(1),
+      limit: z.number().int().min(1).max(100).default(10),
+      search: z.string().optional(),
     });
 
-    const pollsWithVotes = await Promise.all(
-      polls.map(async (poll) => {
-        const totalVotes = await poll.options.reduce(async (accPromise, option) => {
-          const acc = await accPromise;
-          const votes = await redis.zscore(poll.id, option.id);
-          return acc + (votes ? Number(votes) : 0);
-        }, Promise.resolve(0));
+    const { page, limit, search } = querySchema.parse(req.query);
 
-        return {
-          id: poll.id,
-          nome: poll.title,
-          totalDeVotos: totalVotes,
-        };
-      })
-    );
+    const whereClause: Prisma.PollWhereInput = search
+      ? { title: { contains: search, mode: "insensitive" } }
+      : {};
 
-    return res.send(pollsWithVotes);
+    const polls = await prisma.poll.findMany({
+      where: whereClause,
+      select: {
+        id: true,
+        title: true,
+        createdAt: true,
+      },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    const totalPolls = await prisma.poll.count({ where: whereClause });
+
+    return res.send({
+      data: polls.map((poll) => ({
+        id: poll.id,
+        nome: poll.title,
+        createdAt: poll.createdAt,
+      })),
+      meta: {
+        total: totalPolls,
+        page,
+        limit,
+        totalPages: Math.ceil(totalPolls / limit),
+      },
+    });
   });
 };
 
