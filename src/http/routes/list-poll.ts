@@ -6,8 +6,8 @@ import { Prisma } from "@prisma/client";
 const listPolls = async (app: FastifyInstance) => {
   app.get('/polls', async (req, res) => {
     const querySchema = z.object({
-      page: z.number().int().min(1).default(1),
-      limit: z.number().int().min(1).max(100).default(10),
+      page: z.preprocess((val) => Number(val), z.number().int().min(1).default(1)),
+      limit: z.preprocess((val) => Number(val), z.number().int().min(1).max(100).default(10)),
       search: z.string().optional(),
     });
 
