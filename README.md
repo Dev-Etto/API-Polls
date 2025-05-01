@@ -20,7 +20,20 @@ Esta API foi desenvolvida para gerenciar enquetes de forma eficiente e escaláve
    - Endpoint: `GET /polls/:pollId`
    - Retorna os detalhes de uma enquete, incluindo as opções e a contagem de votos.
 
-4. **Resultados em Tempo Real**:
+4. **Listagem de Enquetes**:
+   - Endpoint: `GET /polls`
+   - Retorna uma lista de enquetes no formato:
+     ```json
+     [
+       {
+         "id": "ID da Enquete",
+         "nome": "Título da Enquete",
+         "totalDeVotos": 42
+       }
+     ]
+     ```
+
+5. **Resultados em Tempo Real**:
    - Endpoint WebSocket: `/polls/:pollId/results`
    - Permite acompanhar os resultados de uma enquete em tempo real via WebSocket.
 
@@ -78,7 +91,7 @@ Esta API foi desenvolvida para gerenciar enquetes de forma eficiente e escaláve
 
 ## **Estrutura do Projeto**
 
-- **`src/http/routes`**: Contém as rotas HTTP para criar enquetes, votar e obter detalhes.
+- **`src/http/routes`**: Contém as rotas HTTP para criar enquetes, votar, listar e obter detalhes.
 - **`src/http/ws`**: Contém a implementação do WebSocket para resultados em tempo real.
 - **`src/lib`**: Configurações do Prisma e Redis.
 - **`src/utils`**: Utilitário para gerenciar publicação e assinatura de eventos de votação.
@@ -109,7 +122,20 @@ Esta API foi desenvolvida para gerenciar enquetes de forma eficiente e escaláve
 ### **3. Obter Detalhes da Enquete**
 - **URL**: `GET /polls/:pollId`
 
-### **4. Resultados em Tempo Real**
+### **4. Listar Enquetes**
+- **URL**: `GET /polls`
+- **Resposta**:
+  ```json
+  [
+    {
+      "id": "ID da Enquete",
+      "nome": "Título da Enquete",
+      "totalDeVotos": 42
+    }
+  ]
+  ```
+
+### **5. Resultados em Tempo Real**
 - **URL**: WebSocket `/polls/:pollId/results`
 
 ---
