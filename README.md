@@ -127,8 +127,8 @@ Esta API foi desenvolvida para gerenciar enquetes de forma eficiente e escaláve
 - **Body**:
   ```json
   {
-    "title": "Título da Enquete",
-    "options": ["Opção 1", "Opção 2"]
+    "title": "Qual é a sua linguagem favorita?",
+    "options": ["JavaScript", "Python", "Java"]
   }
   ```
 <details>
@@ -148,7 +148,7 @@ Esta API foi desenvolvida para gerenciar enquetes de forma eficiente e escaláve
 - **Body**:
   ```json
   {
-    "pollOptionId": "ID da Opção"
+    "pollOptionId": "1"
   }
   ```
 <details>
