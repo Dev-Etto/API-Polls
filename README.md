@@ -5,6 +5,52 @@
 Esta API foi desenvolvida para gerenciar enquetes de forma eficiente e escalável. Com ela, é possível criar enquetes, permitir que os usuários votem em opções específicas e acompanhar os resultados em tempo real. A API utiliza tecnologias modernas para garantir alta performance e facilidade de manutenção.
 
 ---
+## **Diagrama do fluxo da aplicação**
+
+```
+        [CLIENTE A]
+             |
+             v
+[1. Rota: POST /polls/:pollId/votes]
+   (Arquivo: vote-on-poll.ts)
+   - Valida dados e busca o cookie `sessionId`
+             |
+             v
+[2. Banco de Dados (PostgreSQL)]
+   - Consulta `Vote` por `sessionId` e `pollId`.
+   - Se já votou em outra opção, DELETA o voto antigo.
+   - CRIA o novo voto na tabela `Vote`.
+             |
+             v
+[3. Cache de Votos (Redis)]
+   - Decrementa a pontuação do voto antigo (se aplicável).
+   - Incrementa a pontuação do novo voto:
+     `redis.zincrby(pollId, 1, pollOptionId)`
+             |
+             v
+[4. Pub/Sub Interno (VotingPugSub)]
+   - Publica a atualização do voto:
+     `voting.publish(pollId, { pollOptionId, votes })`
+             |
+   +---------+--------------------+
+   |                              |
+   v                              v
+[5. Resposta para CLIENTE A]   [6. Rota WebSocket]
+   - Retorna status 201         (Ouve o evento do Pub/Sub)
+                                  |
+                                  v
+                               [7. Envio para Outros Clientes]
+                                  - O servidor envia a atualização
+                                    para CLIENTE B, C, ...
+                                    conectados à enquete.
+                                       |
+                                       v
+                                   [CLIENTE B, C, ...]
+                                     (Observando a enquete)
+                                     - Recebem a atualização.
+                                     - Atualizam a interface.
+```
+
 
 ## **Funcionalidades**
 
