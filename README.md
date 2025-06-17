@@ -8,47 +8,61 @@ Esta API foi desenvolvida para gerenciar enquetes de forma eficiente e escaláve
 ## **Diagrama do fluxo da aplicação**
 
 ```
-        [CLIENTE A]
+        [USUÁRIO]
+             |
+             |  1. O usuário decide criar uma nova enquete.
+             v
+[A. Rota: POST /polls]
+   (Arquivo: src/http/routes/create-poll.ts)
+   - Recebe "title" e "options" na requisição.
+   - Valida os dados com Zod.
              |
              v
-[1. Rota: POST /polls/:pollId/votes]
-   (Arquivo: vote-on-poll.ts)
-   - Valida dados e busca o cookie `sessionId`
+[B. Banco de Dados (PostgreSQL)]
+   - O Prisma cria um novo registro na tabela `Poll` e
+     seus respectivos `PollOptions`.
              |
              v
-[2. Banco de Dados (PostgreSQL)]
-   - Consulta `Vote` por `sessionId` e `pollId`.
-   - Se já votou em outra opção, DELETA o voto antigo.
-   - CRIA o novo voto na tabela `Vote`.
+[C. Resposta para o USUÁRIO]
+   - Retorna o `pollId` da nova enquete.
+             |
+             |  2. USUÁRIOs (A, B, C) agora podem interagir com a enquete.
+             |     - USUÁRIO A vai votar.
+             |     - USUÁRIOs B e C vão observar os resultados.
+             |
+   +--------------------------------+--------------------------------------+
+   |                                |                                      |
+   v                                v                                      v
+[D. USUÁRIO A - Vota]      [E. USUÁRIO B - Observa]               [F. USUÁRIO C - Observa]
+   - Envia um POST para        - Conecta-se ao WebSocket:               - Conecta-se ao WebSocket:
+     `/polls/:pollId/votes`      `/polls/:pollId/results`               `/polls/:pollId/results`
+   (Arquivo: `vote-on-poll.ts`) (Arquivo: `poll-results.ts`) (Arquivo: `poll-results.ts`)
              |
              v
-[3. Cache de Votos (Redis)]
-   - Decrementa a pontuação do voto antigo (se aplicável).
-   - Incrementa a pontuação do novo voto:
-     `redis.zincrby(pollId, 1, pollOptionId)`
+[G. Lógica de Votação]
+   - O servidor processa o voto:
+     1. Salva no PostgreSQL.
+     2. Incrementa a contagem no Redis.
+     3. Retorna 201 Created para o USUÁRIO A.
              |
              v
-[4. Pub/Sub Interno (VotingPugSub)]
-   - Publica a atualização do voto:
-     `voting.publish(pollId, { pollOptionId, votes })`
+[H. Pub/Sub Interno (VotingPugSub)]
+   - A lógica de votação publica uma mensagem
+     com o resultado do voto.
+             |
+             v
+[I. Distribuição via WebSocket]
+   (Arquivo: `poll-results.ts`)
+   - O servidor WebSocket, que ouve o Pub/Sub,
+     recebe a mensagem.
+             |
              |
    +---------+--------------------+
    |                              |
    v                              v
-[5. Resposta para CLIENTE A]   [6. Rota WebSocket]
-   - Retorna status 201         (Ouve o evento do Pub/Sub)
-                                  |
-                                  v
-                               [7. Envio para Outros Clientes]
-                                  - O servidor envia a atualização
-                                    para CLIENTE B, C, ...
-                                    conectados à enquete.
-                                       |
-                                       v
-                                   [CLIENTE B, C, ...]
-                                     (Observando a enquete)
-                                     - Recebem a atualização.
-                                     - Atualizam a interface.
+[J. USUÁRIO B - Recebe]        [K. USUÁRIO C - Recebe]
+   - Recebe a atualização         - Recebe a atualização
+     em tempo real.                 em tempo real.
 ```
 
 
